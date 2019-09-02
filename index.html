@@ -7,6 +7,13 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js'></script>
     <style>
+      hr{
+        border-top: 0.5px solid red
+      }
+      #notes{
+        display: flex;
+        flex-direction: column
+      }
     </style>
   </head>
   <body>
@@ -32,6 +39,35 @@
         return  user;
       };
 
+      const Vacation = ({user, vacation}) => {
+        return (
+          <hr/>
+        );
+      }
+
+      const Notes = ({user, notes, destroy}) => {
+        console.log(notes)
+        return (
+          <div>
+            <button> Add A Random Note </button>
+            <ul>
+            {
+              notes.map(note => {
+                return (
+                  <li key={note.id}>
+                    { note.text }
+                    <br />
+                    <button onClick={ () => destroy(note)}>Destroy</button>
+                  </li>
+                );
+              })
+            }
+            </ul>
+            <hr/>
+          </div>
+        );
+      }
+
       class App extends React.Component{
         constructor(){
           super();
@@ -43,25 +79,65 @@
             followingCompanies: [],
             error: ''
           };
+          this.destroy = this.destroy.bind(this);
+        }//end of constructor
+
+        async destroy(note){
+          this.setState({error: ''});
+          const {user} = this.state
+          try {
+            await axios.delete(`${API}/users/${this.state.user.id}/notes/${note.id}`);
+            this.setState({notes : this.state.notes.filter(_note => _note.id !== note.id )})
+          }
+          catch(ex){
+            this.setState({error: ex.response.data.message})
+          }
+
         }
         async componentDidMount(){
           const user = await fetchUser();
-          this.setState({
-            user
-          });
+          const companies = (await axios.get(`${API}/companies`)).data
+          this.setState({ user, companies });
+          const generateURLs = (endpoints) => {
+            return endpoints.map(endpoint => `${API}/users/${user.id}/${endpoint}`)
+          }
+          const endpoints = ['vacations', 'followingCompanies', 'notes'];
+          const urls= generateURLs(endpoints)
+          Promise.all(urls.map(url=> axios.get(url)))
+            .then(responses => responses.map(response => response.data))
+            .then(([ vacations, followingCompanies, notes ]) => this.setState({ vacations, followingCompanies, notes }))
         }
         render(){
           const { error, user, companies, vacations, followingCompanies, notes } = this.state;
+          const {destroy} = this;
+          const endpoints = ['vacations', 'followingCompanies', 'notes'];
           return (
             <div>
               <h1>The Acme Random Life</h1>
               Welcome { user.fullName } to your Random Life!
               <div className='error'>{ error }</div>
+              <h2>vacations ({vacations.length})</h2>
+              <Vacation vacations={vacations} user={user} />
+              <h2>followingCompanies ( {followingCompanies.length}) </h2>
+              <h2>notes ({notes.length}) </h2>
+              {
+              notes.map(note => {
+                return (
+                  <li key={note.id}>
+                    { note.text }
+                    <br />
+                    <button onClick={ () => destroy(note)}>Destroy</button>
+                  </li>
+                );
+              })
+            }
+
             </div>
           );
         }
       }
 
+//<Notes notes={notes} user={user}  />
       ReactDOM.render(<App />, document.querySelector('#root'));
     </script>
   </body>
