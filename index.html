@@ -39,7 +39,7 @@
         return  user;
       };
 
-      const Vacation = ({user, vacations}) => {
+      const Vacation = ({user, vacations, destroy}) => {
         console.log(vacations)
         return (
           <div>
@@ -50,7 +50,7 @@
                   <li key={vacation.id}>
                     {moment(vacation.startDate).format('MM/DD/YYYY')} to {moment(vacation.endDate).format('MM/DD/YYYY')}
                     <br/>
-                    <button>Destroy</button>
+                    <button onClick={ ()=> destroy(vacation)}>Destroy</button>
                   </li>))
               }
             </ul>
@@ -100,6 +100,7 @@
             error: ''
           };
           this.destroy = this.destroy.bind(this);
+          this.destroyVacation = this.destroyVacation.bind(this);
         }//end of constructor
 
         async destroy(note){
@@ -114,6 +115,20 @@
           }
 
         }
+
+        async destroyVacation(vacation){
+          this.setState({error: ''});
+          const {user} = this.state
+          try {
+            await axios.delete(`${API}/users/${this.state.user.id}/vacations/${vacation.id}`);
+            this.setState({vacations : this.state.vacations.filter(_vacation => _vacation.id !== vacation.id )})
+          }
+          catch(ex){
+            this.setState({error: ex.response.data.message})
+          }
+
+        }
+
         async componentDidMount(){
           const user = await fetchUser();
           const companies = (await axios.get(`${API}/companies`)).data
@@ -129,7 +144,7 @@
         }
         render(){
           const { error, user, companies, vacations, followingCompanies, notes } = this.state;
-          const {destroy} = this;
+          const {destroy, destroyVacation} = this;
           const endpoints = ['vacations', 'followingCompanies', 'notes'];
           return (
             <div>
@@ -137,7 +152,7 @@
               Welcome { user.fullName } to your Random Life!
               <div className='error'>{ error }</div>
               <h2>Vacations ({vacations.length})</h2>
-                <Vacation vacations={vacations} user={user} />
+                <Vacation vacations={vacations} user={user} destroy={destroyVacation}/>
               <h2>FollowingCompanies ( {followingCompanies.length}) </h2>
                 <Following  user={user} followingCompanies={followingCompanies} companies={companies} />
               <h2>Notes ({notes.length}) </h2>
