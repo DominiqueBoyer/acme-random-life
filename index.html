@@ -59,14 +59,33 @@
         );
       }
 
-      const Following = ({user, companies, followingCompanies }) => {
+      const Following = ({user, companies, followingCompanies, destroy }) => {
+        const _following = followingCompanies.map(following => {
+          const company = companies.find(company => company.id === following.companyId)
+          return {...following, company}
+        })
         return (
-          <hr/>
+          <div>
+          <button>Add A Random Company</button>
+            <ul>
+              {
+                _following.map( following => {
+                  return (
+                    <li key={following.id}>
+                      {following.company.name}
+                      <button onClick={ () => destroy(following)}>Destroy</button>
+                    </li>
+                  );
+                })
+              }
+
+            </ul>
+            <hr/>
+          </div>
         );
       }
 
       const Notes = ({user, notes, destroy}) => {
-        // console.log(notes)
         return (
           <div>
             <button> Add A Random Note </button>
@@ -101,6 +120,8 @@
           };
           this.destroy = this.destroy.bind(this);
           this.destroyVacation = this.destroyVacation.bind(this);
+          this.destroyFollowing = this.destroyFollowing.bind(this);
+
         }//end of constructor
 
         async destroy(note){
@@ -129,6 +150,19 @@
 
         }
 
+        async destroyFollowing(following){
+          this.setState({error: ''});
+          const {user} = this.state
+          try {
+            await axios.delete(`${API}/users/${this.state.user.id}/followingCompanies/${following.id}`);
+            this.setState({followingCompanies : this.state.followingCompanies.filter(_following => _following.id !== following.id )})
+          }
+          catch(ex){
+            this.setState({error: ex.response.data.message})
+          }
+
+        }
+
         async componentDidMount(){
           const user = await fetchUser();
           const companies = (await axios.get(`${API}/companies`)).data
@@ -144,7 +178,7 @@
         }
         render(){
           const { error, user, companies, vacations, followingCompanies, notes } = this.state;
-          const {destroy, destroyVacation} = this;
+          const {destroy, destroyVacation, destroyFollowing} = this;
           const endpoints = ['vacations', 'followingCompanies', 'notes'];
           return (
             <div>
@@ -154,7 +188,7 @@
               <h2>Vacations ({vacations.length})</h2>
                 <Vacation vacations={vacations} user={user} destroy={destroyVacation}/>
               <h2>FollowingCompanies ( {followingCompanies.length}) </h2>
-                <Following  user={user} followingCompanies={followingCompanies} companies={companies} />
+                <Following  user={user} followingCompanies={followingCompanies} companies={companies} destroy={destroyFollowing}/>
               <h2>Notes ({notes.length}) </h2>
                 <Notes notes={notes} user={user} destroy={destroy} />
 
