@@ -14,6 +14,15 @@
         display: flex;
         flex-direction: column
       }
+      li{
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem
+      }
+      button{
+        height: 2em;
+        margin-top: 0.5rem
+      }
     </style>
   </head>
   <body>
@@ -40,7 +49,7 @@
       };
 
       const Vacation = ({user, vacations, destroy}) => {
-        console.log(vacations)
+        // console.log(vacations)
         return (
           <div>
             <button> Add A Random Vacation </button>
@@ -118,13 +127,12 @@
             followingCompanies: [],
             error: ''
           };
-          this.destroy = this.destroy.bind(this);
+          this.destroyNote = this.destroyNote.bind(this);
           this.destroyVacation = this.destroyVacation.bind(this);
           this.destroyFollowing = this.destroyFollowing.bind(this);
-
         }//end of constructor
 
-        async destroy(note){
+        async destroyNote(note){
           this.setState({error: ''});
           const {user} = this.state
           try {
@@ -134,7 +142,6 @@
           catch(ex){
             this.setState({error: ex.response.data.message})
           }
-
         }
 
         async destroyVacation(vacation){
@@ -147,7 +154,6 @@
           catch(ex){
             this.setState({error: ex.response.data.message})
           }
-
         }
 
         async destroyFollowing(following){
@@ -160,7 +166,6 @@
           catch(ex){
             this.setState({error: ex.response.data.message})
           }
-
         }
 
         async componentDidMount(){
@@ -178,7 +183,7 @@
         }
         render(){
           const { error, user, companies, vacations, followingCompanies, notes } = this.state;
-          const {destroy, destroyVacation, destroyFollowing} = this;
+          const {destroyNote, destroyVacation, destroyFollowing} = this;
           const endpoints = ['vacations', 'followingCompanies', 'notes'];
           return (
             <div>
@@ -190,7 +195,7 @@
               <h2>FollowingCompanies ( {followingCompanies.length}) </h2>
                 <Following  user={user} followingCompanies={followingCompanies} companies={companies} destroy={destroyFollowing}/>
               <h2>Notes ({notes.length}) </h2>
-                <Notes notes={notes} user={user} destroy={destroy} />
+                <Notes notes={notes} user={user} destroy={destroyNote} />
 
             </div>
           );
