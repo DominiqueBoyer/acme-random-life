@@ -39,14 +39,34 @@
         return  user;
       };
 
-      const Vacation = ({user, vacation}) => {
+      const Vacation = ({user, vacations}) => {
+        console.log(vacations)
+        return (
+          <div>
+            <button> Add A Random Vacation </button>
+            <ul>
+              {
+                vacations.map( vacation => (
+                  <li key={vacation.id}>
+                    {moment(vacation.startDate).format('MM/DD/YYYY')} to {moment(vacation.endDate).format('MM/DD/YYYY')}
+                    <br/>
+                    <button>Destroy</button>
+                  </li>))
+              }
+            </ul>
+            <hr/>
+          </div>
+        );
+      }
+
+      const Following = ({user, companies, followingCompanies }) => {
         return (
           <hr/>
         );
       }
 
       const Notes = ({user, notes, destroy}) => {
-        console.log(notes)
+        // console.log(notes)
         return (
           <div>
             <button> Add A Random Note </button>
@@ -116,28 +136,19 @@
               <h1>The Acme Random Life</h1>
               Welcome { user.fullName } to your Random Life!
               <div className='error'>{ error }</div>
-              <h2>vacations ({vacations.length})</h2>
-              <Vacation vacations={vacations} user={user} />
-              <h2>followingCompanies ( {followingCompanies.length}) </h2>
-              <h2>notes ({notes.length}) </h2>
-              {
-              notes.map(note => {
-                return (
-                  <li key={note.id}>
-                    { note.text }
-                    <br />
-                    <button onClick={ () => destroy(note)}>Destroy</button>
-                  </li>
-                );
-              })
-            }
+              <h2>Vacations ({vacations.length})</h2>
+                <Vacation vacations={vacations} user={user} />
+              <h2>FollowingCompanies ( {followingCompanies.length}) </h2>
+                <Following  user={user} followingCompanies={followingCompanies} companies={companies} />
+              <h2>Notes ({notes.length}) </h2>
+                <Notes notes={notes} user={user} destroy={destroy} />
 
             </div>
           );
         }
       }
 
-//<Notes notes={notes} user={user}  />
+
       ReactDOM.render(<App />, document.querySelector('#root'));
     </script>
   </body>
