@@ -69,6 +69,7 @@
       }
 
       const Following = ({user, companies, followingCompanies, destroy, create }) => {
+        console.log(followingCompanies)
         const _following = followingCompanies.map(following => {
           const company = companies.find(company => company.id === following.companyId)
           return {...following, company}
@@ -177,6 +178,19 @@
           }
         }
         async addFollowing(){
+          const { user } = this.state;
+          const rating = Math.round(Math.random()*5);
+          const company = (await axios.get(`${API}/companies/random`)).data
+          // const payload ={ "rating": rating, "co"}
+          console.log(company, rating)
+          try {
+            const following = await axios.post(`${API}/users/${this.state.user.id}/followingCompanies`, { "rating":`${rating}`, "companyId": `${company.id}`}).data
+            this.setState({ followingCompanies: [...this.state.followingCompanies, following ]});
+          }
+          catch(ex){
+            this.setState({error: ex.response.data.message });
+          }
+
 
         }
 
