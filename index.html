@@ -68,14 +68,14 @@
         );
       }
 
-      const Following = ({user, companies, followingCompanies, destroy }) => {
+      const Following = ({user, companies, followingCompanies, destroy, create }) => {
         const _following = followingCompanies.map(following => {
           const company = companies.find(company => company.id === following.companyId)
           return {...following, company}
         })
         return (
           <div>
-          <button>Add A Random Company</button>
+          <button onClick={ create }>Add A Random Company</button>
             <ul>
               {
                 _following.map( following => {
@@ -130,6 +130,9 @@
           this.destroyNote = this.destroyNote.bind(this);
           this.destroyVacation = this.destroyVacation.bind(this);
           this.destroyFollowing = this.destroyFollowing.bind(this);
+          this.addNote = this.addNote.bind(this);
+          this.addVacation = this.addVacation.bind(this);
+          this.addFollowing = this.addFollowing.bind(this);
         }//end of constructor
 
         async destroyNote(note){
@@ -143,6 +146,9 @@
             this.setState({error: ex.response.data.message})
           }
         }
+        async addNote(){
+
+        }
 
         async destroyVacation(vacation){
           this.setState({error: ''});
@@ -155,6 +161,9 @@
             this.setState({error: ex.response.data.message})
           }
         }
+        async addVacation(){
+
+        }
 
         async destroyFollowing(following){
           this.setState({error: ''});
@@ -166,6 +175,9 @@
           catch(ex){
             this.setState({error: ex.response.data.message})
           }
+        }
+        async addFollowing(){
+
         }
 
         async componentDidMount(){
@@ -184,6 +196,7 @@
         render(){
           const { error, user, companies, vacations, followingCompanies, notes } = this.state;
           const {destroyNote, destroyVacation, destroyFollowing} = this;
+          const {addNote, addVacation, addFollowing} = this;
           const endpoints = ['vacations', 'followingCompanies', 'notes'];
           return (
             <div>
@@ -193,7 +206,7 @@
               <h2>Vacations ({vacations.length})</h2>
                 <Vacation vacations={vacations} user={user} destroy={destroyVacation}/>
               <h2>FollowingCompanies ( {followingCompanies.length}) </h2>
-                <Following  user={user} followingCompanies={followingCompanies} companies={companies} destroy={destroyFollowing}/>
+                <Following  user={user} followingCompanies={followingCompanies} companies={companies} destroy={destroyFollowing} create={addFollowing}/>
               <h2>Notes ({notes.length}) </h2>
                 <Notes notes={notes} user={user} destroy={destroyNote} />
 
