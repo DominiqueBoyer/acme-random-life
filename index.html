@@ -187,7 +187,19 @@
           }
 
         }
-
+        async addFollowing(){
+          this.setState({ error: '' })
+            const { user } = this.state;
+            const rating = Math.round(Math.random()*5);
+            const company = (await axios.get(`${API}/companies/random`)).data
+            try {
+              const following = (await axios.post(`${API}/users/${this.state.user.id}/followingCompanies`, { "rating":`${rating}`, "companyId": `${company.id}`})).data
+              this.setState({ followingCompanies: [...this.state.followingCompanies, following ]});
+            }
+            catch(ex){
+              this.setState({error: ex.response.data.message });
+            }
+          }
         async destroyFollowing(following){
           this.setState({error: ''});
           const {user} = this.state
@@ -199,18 +211,7 @@
             this.setState({error: ex.response.data.message})
           }
         }
-        async addFollowing(){
-          const { user } = this.state;
-          const rating = Math.round(Math.random()*5);
-          const company = (await axios.get(`${API}/companies/random`)).data
-          try {
-            const following = await axios.post(`${API}/users/${this.state.user.id}/followingCompanies`, { "rating":`${rating}`, "companyId": `${company.id}`}).data
-            this.setState({ followingCompanies: [...this.state.followingCompanies, following ]});
-          }
-          catch(ex){
-            this.setState({error: ex.response.data.message });
-          }
-        }
+
 
         async componentDidMount(){
           const user = await fetchUser();
