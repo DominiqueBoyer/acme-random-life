@@ -176,8 +176,8 @@
         async addVacation(){
           this.setState({error: '' });
           const { user } = this.state;
-          const startDate = '09/25/2019';
-          const endDate = '09/30/2019';
+          const startDate = moment();
+          const endDate = moment().add(7, 'd');
           try{
             const vacation = (await axios.post(`${API}/users/${user.id}/vacations`, { startDate, endDate })).data
             this.setState({ vacations: [...this.state.vacations, vacation ]});
