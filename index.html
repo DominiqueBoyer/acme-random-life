@@ -52,7 +52,6 @@
       };
 
       const Vacation = ({user, vacations, destroy, create}) => {
-        console.log(vacations)
         return (
           <div>
             <button onClick={ create}> Add A Random Vacation </button>
@@ -98,10 +97,10 @@
         );
       }
 
-      const Notes = ({user, notes, destroy}) => {
+      const Notes = ({user, notes, destroy, create}) => {
         return (
           <div>
-            <button> Add A Random Note </button>
+            <button onClick={ create }> Add A Random Note </button>
             <ul>
             {
               notes.map(note => {
@@ -151,7 +150,16 @@
           }
         }
         async addNote(){
-
+          this.setState({error: '' });
+          const { user } = this.state;
+          const text =  faker.lorem.sentence(6)
+          try{
+            const note = (await axios.post(`${API}/users/${user.id}/notes`, { "archived":"false", "text": `${text}` })).data
+            this.setState({ notes: [...this.state.notes, note ]});
+          }
+          catch(ex){
+            this.setState({ error: ex.response.data.message })
+          }
         }
 
         async destroyVacation(vacation){
@@ -168,8 +176,8 @@
         async addVacation(){
           this.setState({error: '' });
           const { user } = this.state;
-          const startDate = '01/27/2019';
-          const endDate = '12/05/2020';
+          const startDate = '09/25/2019';
+          const endDate = '09/30/2019';
           try{
             const vacation = (await axios.post(`${API}/users/${user.id}/vacations`, { startDate, endDate })).data
             this.setState({ vacations: [...this.state.vacations, vacation ]});
@@ -232,7 +240,7 @@
               <h2>FollowingCompanies ( {followingCompanies.length}) </h2>
                 <Following  user={user} followingCompanies={followingCompanies} companies={companies} destroy={destroyFollowing} create={addFollowing}/>
               <h2>Notes ({notes.length}) </h2>
-                <Notes notes={notes} user={user} destroy={destroyNote} />
+                <Notes notes={notes} user={user} destroy={destroyNote} create={addNote}/>
 
             </div>
           );
